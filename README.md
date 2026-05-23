@@ -25,6 +25,38 @@ This project uses the [Mall Customers Dataset from Kaggle](https://www.kaggle.co
   - OpenMP
   - CUDA
 
+## Project Structure
+```
+High-Performance-K-Means/
+├── .clang-tidy                # Code quality rules
+├── .gitignore                 
+├── CMakeLists.txt             # Main build configuration file
+├── README.md                  
+├── data/                      # Kaggle dataset
+├── include/                   # Header files (Shared core)
+│   ├── kmeans_core.hpp        # Data structures (Points, Centroids, etc) and math algorithms
+│   └── utils.hpp              # Utility functions (CSV parser, time measurement)
+├── results/                   # GENERATED RESULTS (Keep out of version control)
+│   ├── performance_logs/      # Execution times, speedup, and efficiency metrics
+│   └── clustered_data/        # Output CSVs with the final clustered points
+├── scripts/
+│   ├── env_setup.sh           # Script to load environment modules (GCC, OpenMPI, CUDA)
+│   └── run_experiments.sh     # SLURM/Bash script to automate performance tests
+│   └── local_test.sh          # for local tests
+└── src/
+    ├── core/                  # Core logic implementation
+    │   ├── kmeans_core.cpp    # Euclidean distance, centroid recalculation logic, etc.
+    │   └── utils.cpp          # CSV parsing, I/O implementation, etc.
+    ├── sequential/            # Baseline implementation
+    │   └── main.cpp           # Pure sequential K-means
+    ├── mpi_openmp/            # Distributed + Shared memory implementation
+    │   └── main.cpp           # K-means using MPI and OpenMP pragmas
+    ├── openmp_gpu/            # GPU Offloading implementation
+    │   └── main.cpp           # K-means with OpenMP target offload
+    └── cuda/                  # Native GPU implementation
+        └── main.cu            # K-means written in CUDA C++
+```
+
 ## Team:
   - Ramon Cândido Jales de Barros
   - Victor Aguiar Gomes
