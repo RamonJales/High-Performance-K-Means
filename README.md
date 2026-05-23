@@ -28,8 +28,8 @@ This project uses the [Mall Customers Dataset from Kaggle](https://www.kaggle.co
 ## Team:
   - Ramon Cândido Jales de Barros
   - Victor Aguiar Gomes
-  - Gabrielle de Vasconcelos Borja
-  -Jeremias Pinheiro de Araújo Andrade
+  - Gabrielle de Vasconcelos Borja 
+  - Jeremias Pinheiro de Araújo Andrade
   - Mariana Timbó de Oliveira
 
 ## Professors
