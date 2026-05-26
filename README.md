@@ -43,18 +43,57 @@ High-Performance-K-Means/
 │   ├── env_setup.sh           # Script to load environment modules (GCC, OpenMPI, CUDA)
 │   └── run_experiments.sh     # SLURM/Bash script to automate performance tests
 │   └── local_test.sh          # for local tests
-└── src/
-    ├── core/                  # Core logic implementation
-    │   ├── kmeans_core.cpp    # Euclidean distance, centroid recalculation logic, etc.
-    │   └── utils.cpp          # CSV parsing, I/O implementation, etc.
-    ├── sequential/            # Baseline implementation
-    │   └── main.cpp           # Pure sequential K-means
-    ├── mpi_openmp/            # Distributed + Shared memory implementation
-    │   └── main.cpp           # K-means using MPI and OpenMP pragmas
-    ├── openmp_gpu/            # GPU Offloading implementation
-    │   └── main.cpp           # K-means with OpenMP target offload
-    └── cuda/                  # Native GPU implementation
-        └── main.cu            # K-means written in CUDA C++
+├──src/
+│   ├── core/                  # Core logic implementation
+│   │   ├── kmeans_core.cpp    # Euclidean distance, centroid recalculation logic, etc.
+│   │   └── utils.cpp          # CSV parsing, I/O implementation, etc.
+│   ├── sequential/            # Baseline implementation
+│   │   └── main.cpp           # Pure sequential K-means
+│   ├── mpi_openmp/            # Distributed + Shared memory implementation
+│   │   └── main.cpp           # K-means using MPI and OpenMP pragmas
+│   ├── openmp_gpu/            # GPU Offloading implementation
+│   │   └── main.cpp           # K-means with OpenMP target offload
+│   └── cuda/                  # Native GPU implementation
+│       └── main.cu            # K-means written in CUDA C++
+├── tests/                     # <--- NOVA PASTA
+│   └── first_test.cpp         # Arquivo com os testes unitários
+└── ...
+```
+
+## How to Run
+
+### 1. Environment Setup
+
+Before building, ensure the required compilers and tools are available.
+
+- **On NPAD (Cluster):** Load the necessary modules:
+  ```bash
+  module load gcc/11.2.0 openmpi/4.1.1 cmake/3.20.0 cuda
+  ```
+
+- **Local Machine:** Ensure `build-essential`, `libopenmpi-dev`, and `cmake` are installed. (Note: GPU implementations require a compatible NVIDIA CUDA Toolkit and hardware.)
+
+  ```
+  sudo apt update
+  sudo apt install build-essential libopenmpi-dev cmake
+  ```
+
+### 2. Building the Project
+
+Run the following commands from the project root to generate the build system and compile all targets:
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+### 3. Running Unit Tests
+
+To verify the mathematical correctness of the core algorithms:
+
+```bash
+cd build
+ctest --output-on-failure
 ```
 
 ## Team:
