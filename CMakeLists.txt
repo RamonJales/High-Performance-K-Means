@@ -1,28 +1,39 @@
 cmake_minimum_required(VERSION 3.20)
 
-# Inicializa o projeto habilitando C++ e CUDA
+# Initializes the project, enabling C++
 project(High-Performance-K-Means VERSION 1.0 LANGUAGES CXX)
 
-# Configura o padrão do C++ para C++17
+# Sets the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# Exporta o arquivo para o Neovim/LSP entender o código
+# Exports compile commands for Neovim/LSP integration
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # ---------------------------------------------------------
-# 1. Busca de Dependências (HPC)
+# 1. Dependency Search (HPC)
 # ---------------------------------------------------------
 find_package(OpenMP REQUIRED)
 find_package(MPI REQUIRED)
 
 # ---------------------------------------------------------
-# 4. Testes Unitários (Google Test)
+# 2. Target Core (Business Logic & Utilities)
 # ---------------------------------------------------------
-# Habilita a infraestrutura de testes do CMake (CTest)
+add_library(kmeans_core STATIC
+    src/core/kmeans_core.cpp
+    src/core/utils.cpp
+)
+
+# Instructs the compiler where to find the .hpp header files
+target_include_directories(kmeans_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# ---------------------------------------------------------
+# 3. Unit Tests (Google Test)
+# ---------------------------------------------------------
+# Enables CMake testing infrastructure (CTest)
 enable_testing()
 
-# Baixa o Google Test automaticamente do GitHub
+# Downloads Google Test automatically from GitHub
 include(FetchContent)
 FetchContent_Declare(
   googletest
@@ -31,15 +42,20 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(googletest)
 
-# Cria o executável de testes
-add_executable(run_tests tests/first_test.cpp)
+# Creates the test executable
+add_executable(run_tests
+    tests/test_kmeans_core.cpp
+    tests/test_utils.cpp
+    tests/first_test.cpp
+)
 
-# Linka o GTest e a NOSSA lógica de negócio (kmeans_core) ao teste
+# Links GTest AND our core logic (kmeans_core) to the test executable
 target_link_libraries(run_tests 
     PRIVATE 
     gtest_main 
+    kmeans_core
 )
 
-# Registra o executável para o comando 'ctest'
+# Registers the executable for the 'ctest' command
 include(GoogleTest)
 gtest_discover_tests(run_tests)
