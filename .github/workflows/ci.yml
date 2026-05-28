@@ -1,0 +1,36 @@
+name: C++ HPC CI
+
+# Defines when the pipeline will run
+on:
+  push:
+    branches: [ "main" ]
+  pull_request: # Runs automatically on Pull/Merge Requests
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    # Creates a virtual machine with the latest Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Downloads the repository code to the virtual machine
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # 2. Installs the C++ compiler and the MPI development library
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake g++ libopenmpi-dev
+
+    # 3. Generates the build files using our CMake structure
+    - name: Configure CMake
+      run: cmake -B build
+
+    # 4. Builds the project (downloads GTest automatically)
+    - name: Build
+      run: cmake --build build
+
+    # 5. Runs the K-Means unit test suite
+    - name: Run Tests
+      run: cd build && ctest --output-on-failure
