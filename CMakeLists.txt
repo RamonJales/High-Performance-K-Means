@@ -27,6 +27,10 @@ add_library(kmeans_core STATIC
 # Instructs the compiler where to find the .hpp header files
 target_include_directories(kmeans_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+add_executable(kmeans_seq src/sequential/main.cpp)
+
+target_link_libraries(kmeans_seq PRIVATE kmeans_core)
+
 # ---------------------------------------------------------
 # 3. Unit Tests (Google Test)
 # ---------------------------------------------------------
