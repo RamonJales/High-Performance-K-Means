@@ -96,6 +96,46 @@ cd build
 ctest --output-on-failure
 ```
 
+### 4. Running a Local Test
+
+Run a quick functionality check using:
+
+```bash
+./scripts/local_test.sh [OPTIONS]
+```
+
+Available options:
+
+| Option             | Description                                             | Default                   |
+| ------------------ | ------------------------------------------------------- | ------------------------- |
+| `-t`, `--target`   | Implementation to run (`seq`, `mpi`, `omp-gpu`, `cuda`) | `seq`                     |
+| `-k`, `--clusters` | Number of clusters (K)                                  | `5`                       |
+| `-j`, `--threads`  | Number of OpenMP threads                                | `4`                       |
+| `-d`, `--dataset`  | Path to the input dataset                               | `data/mall_customers.csv` |
+
+Examples:
+
+```bash
+# Sequential version with default settings
+./scripts/local_test.sh
+
+# MPI version with K=10
+./scripts/local_test.sh -t mpi -k 10
+
+# Custom dataset
+./scripts/local_test.sh -d data/custom_dataset.csv
+
+# Show help
+./scripts/local_test.sh --help
+```
+
+The script validates the environment, checks required files, configures the execution parameters, and prints execution information directly to the terminal.
+
+> **Note:** This script is intended only for basic functionality checks. When running on the NPAD login node, use very small configurations and avoid performance-oriented workloads.
+
+
+
+
 ## Team:
   - Ramon Cândido Jales de Barros
   - Victor Aguiar Gomes
