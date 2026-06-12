@@ -2,6 +2,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 std::vector<Point> read_csv(const std::string& filename, const std::vector<int>& feature_columns) {
     std::vector<Point> points;
@@ -40,4 +41,26 @@ std::vector<Point> read_csv(const std::string& filename, const std::vector<int>&
 
     file.close();
     return points;
+}
+
+bool cmd_option_exists(char** begin, char** end, const std::string& option) {
+    return std::find(begin, end, option) != end;
+}
+
+std::string get_cmd_option(char** begin, char** end, const std::string& option) {
+    char** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end) {
+        return std::string(*itr);
+    }
+    return "";
+}
+
+void print_execution_summary(const std::string& version_name, size_t dataset_size, int iterations, double elapsed_time) {
+    std::cout << "======================================\n";
+    std::cout << " Execution Summary (" << version_name << ")\n";
+    std::cout << "======================================\n";
+    std::cout << " Dataset Size:  " << dataset_size << " points\n";
+    std::cout << " Status:        Converged in " << iterations << " iterations\n";
+    std::cout << " Elapsed Time:  " << elapsed_time << " seconds\n";
+    std::cout << "======================================\n";
 }

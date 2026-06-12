@@ -1,0 +1,19 @@
+K-MEANS ALGORITHM
+
+1. Load the dataset from the CSV file.
+2. Define K, the desired number of clusters.
+3. Randomly select K data points as the initial centroids.
+
+4. Repeat until convergence or until the maximum number of iterations is reached:
+
+   a. Cluster Assignment:
+      For each data point, compute its distance to all centroids and assign it to the nearest one.
+
+   b. Centroid Update:
+      For each cluster, compute the mean position of all assigned points and update the centroid accordingly.
+
+   c. Increment the iteration counter.
+
+5. Record and report the execution time.
+
+END

@@ -58,3 +58,46 @@ TEST_F(UtilsTest, ReadCSVColumnOutOfBounds) {
     // Expect an out_of_range exception
     EXPECT_THROW(read_csv(test_filename, target_columns), std::out_of_range);
 }
+
+TEST(CLIParserTest, OptionExistsHappyPath) {
+    const char* args[] = {"./kmeans_seq", "-k", "5", "-input", "data.csv"};
+    int argc = 5;
+    char** argv = const_cast<char**>(args); 
+
+    EXPECT_TRUE(cmd_option_exists(argv, argv + argc, "-k"));
+    EXPECT_TRUE(cmd_option_exists(argv, argv + argc, "-input"));
+}
+
+TEST(CLIParserTest, OptionDoesNotExist) {
+    const char* args[] = {"./kmeans_seq", "-k", "5"};
+    int argc = 3;
+    char** argv = const_cast<char**>(args);
+
+    EXPECT_FALSE(cmd_option_exists(argv, argv + argc, "-h"));
+    EXPECT_FALSE(cmd_option_exists(argv, argv + argc, "-input"));
+}
+
+TEST(CLIParserTest, GetOptionValueHappyPath) {
+    const char* args[] = {"./kmeans_seq", "-k", "5", "-input", "data.csv"};
+    int argc = 5;
+    char** argv = const_cast<char**>(args);
+
+    EXPECT_EQ(get_cmd_option(argv, argv + argc, "-k"), "5");
+    EXPECT_EQ(get_cmd_option(argv, argv + argc, "-input"), "data.csv");
+}
+
+TEST(CLIParserTest, GetOptionValueMissingValue) {
+    const char* args[] = {"./kmeans_seq", "-k"};
+    int argc = 2;
+    char** argv = const_cast<char**>(args);
+
+    EXPECT_EQ(get_cmd_option(argv, argv + argc, "-k"), "");
+}
+
+TEST(CLIParserTest, GetOptionValueNotFound) {
+    const char* args[] = {"./kmeans_seq", "-k", "5"};
+    int argc = 3;
+    char** argv = const_cast<char**>(args);
+
+    EXPECT_EQ(get_cmd_option(argv, argv + argc, "-input"), "");
+}
