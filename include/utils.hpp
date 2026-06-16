@@ -48,4 +48,16 @@ std::string get_cmd_option(char** begin, char** end, const std::string& option);
  */
 void print_execution_summary(const std::string& version_name, size_t dataset_size, int iterations, double elapsed_time);
 
+/**
+ * @brief Reads a CSV file, applies preprocessing, and loads the data into Point objects.
+ * * This utility function reads the dataset from a CSV file, skipping the header.
+ * It ignores the ID column, converts the gender column into numeric values, and
+ * normalizes the numeric feature columns using min-max normalization.
+ * * @param filename The relative or absolute path to the CSV file.
+ * @return std::vector<Point> A vector containing the preprocessed Point objects.
+ * @throws std::runtime_error If the file cannot be opened or if the CSV format is invalid.
+ * @throws std::invalid_argument If a gender value cannot be converted or a numeric value is invalid.
+ */
+std::vector<Point> read_csv_preprocessed(const std::string& filename);
+
 #endif // UTILS_HPP

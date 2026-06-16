@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
     try {
         // 2. Load the Dataset
         std::cout << "Loading dataset: " << input_file << "...\n";
-        std::vector<Point> points = read_csv(input_file, target_columns);
+        std::vector<Point> points = read_csv_preprocessed(input_file);
         
         if (points.empty()) {
             std::cerr << "Error: Dataset is empty.\n";
