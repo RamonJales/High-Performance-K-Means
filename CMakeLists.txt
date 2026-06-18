@@ -17,7 +17,7 @@ find_package(OpenMP REQUIRED)
 find_package(MPI REQUIRED)
 
 # ---------------------------------------------------------
-# 2. Target Core (Business Logic & Utilities)
+# 2. Target Core (CPU) - Business Logic & Utilities
 # ---------------------------------------------------------
 add_library(kmeans_core STATIC
     src/core/kmeans_core.cpp
@@ -26,10 +26,42 @@ add_library(kmeans_core STATIC
 
 # Instructs the compiler where to find the .hpp header files
 target_include_directories(kmeans_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(kmeans_core PUBLIC OpenMP::OpenMP_CXX)
 
 add_executable(kmeans_seq src/sequential/main.cpp)
 
 target_link_libraries(kmeans_seq PRIVATE kmeans_core)
+
+# ---------------------------------------------------------
+# 2b. Target Core (GPU) - same structure as the CPU target,
+# but using the GPU-specific source files
+# (kmeans_core_gpu.cpp and src/openmp_gpu/main.cpp).
+# ---------------------------------------------------------
+add_library(kmeans_core_gpu STATIC
+    src/core/kmeans_core_gpu.cpp
+    src/core/utils.cpp
+)
+
+target_include_directories(kmeans_core_gpu PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+add_executable(kmeans_gpu src/openmp_gpu/main.cpp)
+
+target_link_libraries(kmeans_gpu PRIVATE kmeans_core_gpu)
+
+# find_package(OpenMP) does not recognize NVHPC's GPU offloading flag
+# (-mp=gpu); it only handles standard CPU OpenMP flags such as
+# (-fopenmp). Therefore, the offloading flags are added manually,
+# and only when the selected compiler is NVHPC (nvc++).
+# With any other compiler, GPU offloading support would not be available.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
+    set(GPU_OFFLOAD_FLAGS -mp=gpu -gpu=cc70) 
+    target_compile_options(kmeans_core_gpu PUBLIC ${GPU_OFFLOAD_FLAGS})
+    target_compile_options(kmeans_gpu PUBLIC ${GPU_OFFLOAD_FLAGS})
+    target_link_options(kmeans_core_gpu PUBLIC ${GPU_OFFLOAD_FLAGS})
+    target_link_options(kmeans_gpu PUBLIC ${GPU_OFFLOAD_FLAGS})
+else()
+    message(WARNING "Compilador atual (${CMAKE_CXX_COMPILER_ID}) nao e NVHPC: kmeans_gpu vai compilar, mas sem offload real para GPU.")
+endif()
 
 # ---------------------------------------------------------
 # 3. Unit Tests (Google Test)
@@ -54,9 +86,9 @@ add_executable(run_tests
 )
 
 # Links GTest AND our core logic (kmeans_core) to the test executable
-target_link_libraries(run_tests 
-    PRIVATE 
-    gtest_main 
+target_link_libraries(run_tests
+    PRIVATE
+    gtest_main
     kmeans_core
 )
 
