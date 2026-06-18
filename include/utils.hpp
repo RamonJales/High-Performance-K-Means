@@ -2,6 +2,7 @@
 #define UTILS_HPP
 
 #include "kmeans_core.hpp"
+#include "kmeans_core_gpu.hpp"
 #include <string>
 #include <vector>
 
@@ -17,6 +18,25 @@
  * @throws std::out_of_range If a requested column index does not exist in the CSV row.
  */
 std::vector<Point> read_csv(const std::string& filename, const std::vector<int>& feature_columns);
+
+/**
+ * @brief Parses a CSV file and loads specific columns into a Points_Data_GPU structure.
+ *
+ * This utility function reads a dataset from a CSV file, skipping the first line (header).
+ * It extracts only the columns specified by their zero-based indices and stores them
+ * directly in a flat array (SoA layout) inside Points_Data_GPU, ready to be mapped to the GPU.
+ *
+ * @param filename The relative or absolute path to the CSV file.
+ * @param feature_columns A vector of zero-based column indices to extract as features.
+ * For example, to extract columns 3 and 4, pass {3, 4}.
+ * @return Points_Data_GPU A structure containing the parsed points (SoA layout), with
+ * cluster_ids and min_distances already initialized. centroids and k are left
+ * empty/zero and must be set by the caller.
+ * @throws std::runtime_error If the file cannot be opened.
+ * @throws std::out_of_range If a requested column index does not exist in the CSV row.
+ */
+
+Points_Data_GPU gpu_read_csv(const std::string& filename, const std::vector<int>& feature_columns);
 
 /**
  * @brief Checks if a specific command-line option (flag) exists.

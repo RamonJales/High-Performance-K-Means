@@ -18,7 +18,7 @@ BUILD_DIR="$ROOT_DIR/build"
 TARGET="seq"
 K=5
 THREADS=4
-DATASET_ARG="data/mall_customers.csv"
+DATASET_ARG="data/mall_customers_for_test.csv"
 
 # ---------------------------------------------------------
 # Smart Argument Parser (Named Flags)
@@ -106,7 +106,7 @@ case "$TARGET" in
         mpirun -np 2 "$EXEC_PATH" -k "$K" -input "$DATASET"
         ;;
     "omp-gpu")
-        EXEC_PATH="$BUILD_DIR/kmeans_omp_gpu"
+        EXEC_PATH="$BUILD_DIR/kmeans_gpu"
         check_nvidia_gpu
         check_executable "$EXEC_PATH"
         "$EXEC_PATH" -k "$K" -input "$DATASET"
