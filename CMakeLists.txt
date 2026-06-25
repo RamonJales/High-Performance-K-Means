@@ -64,6 +64,36 @@ else()
 endif()
 
 # ---------------------------------------------------------
+# 2c. Target Core (CUDA) - same structure as the GPU target,
+# but using nvcc-compiled .cu sources
+# (kmeans_core_cuda.cu and src/cuda/main.cu).
+# ---------------------------------------------------------
+include(CheckLanguage)
+check_language(CUDA)
+
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+
+    add_library(kmeans_core_cuda STATIC
+        src/core/kmeans_core_cuda.cu
+        src/core/utils.cpp
+    )
+
+    target_include_directories(kmeans_core_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_STANDARD 17)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_ARCHITECTURES 70)
+
+
+    add_executable(kmeans_cuda src/cuda/main.cu)
+    target_link_libraries(kmeans_cuda PRIVATE kmeans_core_cuda)
+    set_target_properties(kmeans_cuda PROPERTIES CUDA_STANDARD 17)
+    set_target_properties(kmeans_cuda PROPERTIES CUDA_ARCHITECTURES 70)
+else()
+    message(WARNING "Nenhum compilador CUDA (nvcc) encontrado: kmeans_cuda nao sera compilado.")
+endif()
+
+# ---------------------------------------------------------
 # 3. Unit Tests (Google Test)
 # ---------------------------------------------------------
 # Enables CMake testing infrastructure (CTest)
