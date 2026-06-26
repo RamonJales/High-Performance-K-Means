@@ -64,6 +64,24 @@ else()
 endif()
 
 # ---------------------------------------------------------
+# 2c. Target Core (MPI + OpenMP, CPU) - same structure as the
+# CPU/GPU targets, but using the MPI-specific source files
+# (kmeans_core_mpi.cpp and src/mpi_openmp/main.cpp). Each MPI
+# rank runs OpenMP threads over its local slice of points.
+# ---------------------------------------------------------
+add_library(kmeans_core_mpi STATIC
+    src/core/kmeans_core_mpi.cpp
+    src/core/utils.cpp
+)
+
+target_include_directories(kmeans_core_mpi PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(kmeans_core_mpi PUBLIC OpenMP::OpenMP_CXX MPI::MPI_CXX)
+
+add_executable(kmeans_mpi_omp src/mpi_openmp/main.cpp)
+
+target_link_libraries(kmeans_mpi_omp PRIVATE kmeans_core_mpi)
+
+# ---------------------------------------------------------
 # 3. Unit Tests (Google Test)
 # ---------------------------------------------------------
 # Enables CMake testing infrastructure (CTest)
