@@ -18,3 +18,13 @@ No caso do MPI, o SpeedUp cresce drasticamente. Na versão sequencial, a base de
 processador a buscar os dados direto na memória RAM constantemente. No caso do MPI, o problema é dividido entre 16 processos, 
 e em cada processo, o bloco ainda é dividido entre as threads. Sendo assim, cada processo fica com um pedaço que se torna 
 acessível o suficiente para caber na cache. Sendo assim, o tempo que se ganha por não recorrer à memória RAM é altíssimo.
+
+- "versão MPI"
+-> "versão híbrida MPI+OpenMP"
+
+- "o ganho é menor por conta do tempo das transferências de dados, seja em  transferências host-device no caso GPU, seja na troca de mensagens através da rede/memória no caso do MPI"
+-> "o ganho é menor por conta dos overheads de paralelização, seja pelo custo de offloading e das transferências host-device nas versões em GPU, seja pela troca de mensagens e sincronização entre processos no caso do MPI."
+
+- "No caso do MPI, o problema é dividido entre 16 processos, e em cada processo, o bloco ainda é dividido entre as threads. Sendo assim, cada processo fica com um pedaço que se torna acessível o suficiente para caber na cache. Sendo assim, o tempo que se ganha por não recorrer à memória RAM é altíssimo."
+*os processos sao divididos pra melhor acesso dos dados sem depender tantas vezes da ram, mas alem do acesso inicial ainda podem haver outros acessos se necessario
+-> "Na versão MPI, a base de dados é dividida entre os processos, fazendo com que cada processo trabalhe com uma fração menor dos dados. Isso melhora a localidade de memória e aumenta a chance de reutilização dos dados em cache, reduzindo a frequência e o custo dos acessos à RAM em comparação com a versão sequencial.Sendo assim, o tempo que se ganha por não recorrer constantemente à memória RAM é altíssimo"
