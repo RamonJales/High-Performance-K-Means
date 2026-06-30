@@ -67,18 +67,26 @@ int main(int argc, char** argv) {
         std::cout << "Starting CUDA K-Means loop...\n";
         auto start_time = std::chrono::high_resolution_clock::now();
 
+        // Allocate device buffers and upload the points once; everything stays
+        // resident on the GPU across the loop (see kmeans_core_cuda.cu).
+        KMeansCudaContext ctx;
+        kmeans_cuda_init(ctx, data);
+
         int iterations = 0;
         bool changed = true;
         while (changed && iterations < max_iter) {
             // Step A: Assign points to the nearest centroid (CUDA kernel)
-            changed = assign_clusters_cuda(data);
+            changed = assign_clusters_cuda(ctx);
 
             // Step B: Update centroids using shared memory and block reduction
             if (changed) {
-                update_centroids_cuda(data);
+                update_centroids_cuda(ctx);
             }
             iterations++;
         }
+
+        // Copy final centroids/assignments back to host and free device buffers.
+        kmeans_cuda_finalize(ctx, data);
 
         auto end_time = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> elapsed = end_time - start_time;

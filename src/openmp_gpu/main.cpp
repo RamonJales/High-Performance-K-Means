@@ -68,15 +68,22 @@ int main(int argc, char** argv) {
 
         int iterations = 0;
         bool changed = true;
-        while (changed && iterations < max_iter) {
-            // Step A: Assign points to the nearest centroid (kernel in GPU)
-            changed = assign_clusters_gpu(data);
 
-            // Step B: Update centroids based on new assignments (kernel in GPU)
-            if (changed) {
-                update_centroids_gpu(data);
+        const double* points_dev = data.points.data();
+        const long points_len = static_cast<long>(data.n) * num_features;
+
+        #pragma omp target data map(to: points_dev[0:points_len])
+        {
+            while (changed && iterations < max_iter) {
+                // Step A: Assign points to the nearest centroid (kernel in GPU)
+                changed = assign_clusters_gpu(data);
+
+                // Step B: Update centroids based on new assignments (kernel in GPU)
+                if (changed) {
+                    update_centroids_gpu(data);
+                }
+                iterations++;
             }
-            iterations++;
         }
 
         auto end_time = std::chrono::high_resolution_clock::now();
