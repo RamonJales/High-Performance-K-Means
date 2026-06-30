@@ -1,0 +1,9 @@
+Version,K,Dataset_Size,Avg_Iterations,Avg_Time_Sec
+Sequential,2,4810772,8.0,2.201103
+Sequential,3,4810772,33.0,10.841633
+Sequential,4,4810772,30.0,11.361167
+Sequential,6,4810772,44.0,22.252233
+Sequential,7,4810772,73.0,40.414867
+Sequential,9,4810772,52.0,35.282467
+Sequential,11,4810772,35.0,27.792667
+Sequential,13,4810772,77.0,70.247767
