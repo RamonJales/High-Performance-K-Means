@@ -33,9 +33,7 @@ add_executable(kmeans_seq src/sequential/main.cpp)
 target_link_libraries(kmeans_seq PRIVATE kmeans_core)
 
 # ---------------------------------------------------------
-# 2b. Target Core (GPU) - same structure as the CPU target,
-# but using the GPU-specific source files
-# (kmeans_core_gpu.cpp and src/openmp_gpu/main.cpp).
+# 2b. Target Core (GPU - OpenMP Offloading)
 # ---------------------------------------------------------
 add_library(kmeans_core_gpu STATIC
     src/core/kmeans_core_gpu.cpp
@@ -52,7 +50,6 @@ target_link_libraries(kmeans_gpu PRIVATE kmeans_core_gpu)
 # (-mp=gpu); it only handles standard CPU OpenMP flags such as
 # (-fopenmp). Therefore, the offloading flags are added manually,
 # and only when the selected compiler is NVHPC (nvc++).
-# With any other compiler, GPU offloading support would not be available.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "NVHPC")
     set(GPU_OFFLOAD_FLAGS -mp=gpu -gpu=cc70) 
     target_compile_options(kmeans_core_gpu PUBLIC ${GPU_OFFLOAD_FLAGS})
@@ -64,10 +61,7 @@ else()
 endif()
 
 # ---------------------------------------------------------
-# 2c. Target Core (MPI + OpenMP, CPU) - same structure as the
-# CPU/GPU targets, but using the MPI-specific source files
-# (kmeans_core_mpi.cpp and src/mpi_openmp/main.cpp). Each MPI
-# rank runs OpenMP threads over its local slice of points.
+# 2c. Target Core (MPI + OpenMP, CPU)
 # ---------------------------------------------------------
 add_library(kmeans_core_mpi STATIC
     src/core/kmeans_core_mpi.cpp
@@ -82,34 +76,56 @@ add_executable(kmeans_mpi_omp src/mpi_openmp/main.cpp)
 target_link_libraries(kmeans_mpi_omp PRIVATE kmeans_core_mpi)
 
 # ---------------------------------------------------------
+# 2d. Target Core (CUDA - NVIDIA Native GPU)
+# ---------------------------------------------------------
+include(CheckLanguage)
+check_language(CUDA)
+
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+
+    add_library(kmeans_core_cuda STATIC
+        src/core/kmeans_core_cuda.cu
+        src/core/utils.cpp
+    )
+
+    target_include_directories(kmeans_core_cuda PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_STANDARD 17)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+    set_target_properties(kmeans_core_cuda PROPERTIES CUDA_ARCHITECTURES 70)
+
+    add_executable(kmeans_cuda src/cuda/main.cu)
+    target_link_libraries(kmeans_cuda PRIVATE kmeans_core_cuda)
+    set_target_properties(kmeans_cuda PROPERTIES CUDA_STANDARD 17)
+    set_target_properties(kmeans_cuda PROPERTIES CUDA_ARCHITECTURES 70)
+else()
+    message(WARNING "Nenhum compilador CUDA (nvcc) encontrado: kmeans_cuda nao sera compilado.")
+endif()
+
+# ---------------------------------------------------------
 # 3. Unit Tests (Google Test)
 # ---------------------------------------------------------
-# Enables CMake testing infrastructure (CTest)
 enable_testing()
 
-# Downloads Google Test automatically from GitHub
 include(FetchContent)
 FetchContent_Declare(
-  googletest
-  GIT_REPOSITORY https://github.com/google/googletest.git
-  GIT_TAG        release-1.12.1
+    googletest
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        release-1.12.1
 )
 FetchContent_MakeAvailable(googletest)
 
-# Creates the test executable
 add_executable(run_tests
     tests/test_kmeans_core.cpp
     tests/test_utils.cpp
     tests/first_test.cpp
 )
 
-# Links GTest AND our core logic (kmeans_core) to the test executable
 target_link_libraries(run_tests
     PRIVATE
     gtest_main
     kmeans_core
 )
 
-# Registers the executable for the 'ctest' command
 include(GoogleTest)
 gtest_discover_tests(run_tests)
